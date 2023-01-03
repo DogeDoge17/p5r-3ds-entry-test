@@ -1,0 +1,25 @@
+name !  
+date !
+party levels !
+inventory !
+money !
+playtime !
+cleared palace !
+party memembers !
+party layout !
+persona comp. !
+social links !
+baton pass level !
+party outfits !
+personas in the smoke cell !
+mementos level !
+mementos quests !
+mementos quests completed !
+challenge battle scores !
+challenge battle completion ! 
+baseball stats !
+social stats !
+safe mode !
+ng+ !
+calling card date !
+ 
