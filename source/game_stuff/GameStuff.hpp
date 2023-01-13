@@ -4,12 +4,15 @@
 class GameObject;
 class MonoBehaviour;
 
+
 class MonoBehaviour {
 public:
 	GameObject* gameObject;
-	virtual void baseMethod() {
-		std::cout << "Called baseMethod" << std::endl;
+	virtual void baseMethod()
+	{
+		std::cout << "Called baseMethod\n";
 	}
+
 	MonoBehaviour(GameObject& par){ gameObject = &par; }
 	~MonoBehaviour(){}
 	
@@ -23,20 +26,16 @@ public:
 	Quaternion rotation;
 };
 
+
 class GameObject {
 public:
-	static std::vector<GameObject> gameObjects;
-
 	std::vector<MonoBehaviour> monoBehaviours;
-
-	/*void AddComponent(std::unique_ptr<MonoBehaviour> item)
-	{
-		monoBehaviours.push_back(std::move(item));
-	}*/
 
 	template<class T, class... Args>
 	void AddComponent(Args&&... args) {
-		monoBehaviours.push_back(T(std::forward<Args>(args)...));
+		static_assert(std::is_base_of<MonoBehaviour, T>::value,
+			"T must be derived from MonoBehaviour");
+		monoBehaviours.emplace_back(T(*this, std::forward<Args>(args)...));
 	}
 
 	template <typename T>
@@ -50,11 +49,10 @@ public:
 		return nullptr;
 	}
 
-
 	GameObject()
 	{
-		//gameObjects.push_back(this);
-		AddComponent<Transform>(*this);//monoBehaviours.emplace_back(std::make_unique<Transform>(this));
+		//Hierarchy::gameObjects.push_back(this);
+		AddComponent<Transform>();//monoBehaviours.emplace_back(std::make_unique<Transform>(this));
 	}
 
 	~GameObject()
@@ -66,7 +64,7 @@ public:
 
 			}
 		}*/
-		//gameObjects.erase(std::remove(gameObjects.begin(), gameObjects.end(), this), gameObjects.end());
+		//Hierarchy::gameObjects.erase(std::remove(Hierarchy::gameObjects.begin(), Hierarchy::gameObjects.end(), this), Hierarchy::gameObjects.end());
 	}
 };
 

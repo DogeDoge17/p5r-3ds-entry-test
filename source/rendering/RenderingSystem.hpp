@@ -2,88 +2,154 @@
 #include "../main.h"
 #include <3ds.h>
 #include <citro3d.h>
-#include <tex3ds.h>
 #include <string.h>
+#include <stdio.h>
 #include "vshader_shbin.h"
+#include "teapot.h"
+#include "../utils.hpp"
 
-typedef struct { float position[3]; float texcoord[2]; float normal[3]; } vertex;
+namespace RenderSystem
+{
 
 #define CLEAR_COLOR 0x68B0D8FF
 
 #define DISPLAY_TRANSFER_FLAGS \
-(GX_TRANSFER_FLIP_VERT(0) | GX_TRANSFER_OUT_TILED(0) | GX_TRANSFER_RAW_COPY(0) | \
+	(GX_TRANSFER_FLIP_VERT(0) | GX_TRANSFER_OUT_TILED(0) | GX_TRANSFER_RAW_COPY(0) | \
 	GX_TRANSFER_IN_FORMAT(GX_TRANSFER_FMT_RGBA8) | GX_TRANSFER_OUT_FORMAT(GX_TRANSFER_FMT_RGB8) | \
 	GX_TRANSFER_SCALING(GX_TRANSFER_SCALE_NO))
-
-
-
-//static u8* buffer;
 
 static DVLB_s* vshader_dvlb;
 static shaderProgram_s program;
 static int uLoc_projection, uLoc_modelView;
-static int uLoc_lightVec, uLoc_lightHalfVec, uLoc_lightClr, uLoc_material;
 static C3D_Mtx projection;
 
-class RenderSystem
+static C3D_LightEnv lightEnv;
+static C3D_Light light;
+static C3D_LightLut lut_Spec, lut_Toon;
+
+static void* vbo_data;
+#ifdef vertex_element_count
+static void* ibo_data;
+#endif
+static float angleX = 0.0, angleY = 0.0;
+
+#define NUM_DIFFUSE_TONES 3
+static float toon_diffuse(float x, float arg)
 {
-public:
-	static void sceneInit(void)
-	{
+	const float factor = NUM_DIFFUSE_TONES-1;
+	return floorf(0.5f+x*factor)/factor;
+}
+
+#define NUM_SPECULAR_TONES 2
+static float toon_specular(float x, float shininess)
+{
+	const float factor = NUM_SPECULAR_TONES-1;
+	return floorf(0.5f+powf(x, shininess)*factor)/factor;
+}
+
+static void sceneInit(void)
+{
 	// Load the vertex shader, create a shader program and bind it
-		vshader_dvlb = DVLB_ParseFile((u32*)vshader_shbin, vshader_shbin_size);
-		shaderProgramInit(&program);
-		shaderProgramSetVsh(&program, &vshader_dvlb->DVLE[0]);
-		C3D_BindProgram(&program);
+	vshader_dvlb = DVLB_ParseFile((u32*)vshader_shbin, vshader_shbin_size);
+	shaderProgramInit(&program);
+	shaderProgramSetVsh(&program, &vshader_dvlb->DVLE[0]);
+	C3D_BindProgram(&program);
 
 	// Get the location of the uniforms
-		uLoc_projection   = shaderInstanceGetUniformLocation(program.vertexShader, "projection");
-		uLoc_modelView    = shaderInstanceGetUniformLocation(program.vertexShader, "modelView");
-		uLoc_lightVec     = shaderInstanceGetUniformLocation(program.vertexShader, "lightVec");
-		uLoc_lightHalfVec = shaderInstanceGetUniformLocation(program.vertexShader, "lightHalfVec");
-		uLoc_lightClr     = shaderInstanceGetUniformLocation(program.vertexShader, "lightClr");
-		uLoc_material     = shaderInstanceGetUniformLocation(program.vertexShader, "material");
+	uLoc_projection   = shaderInstanceGetUniformLocation(program.vertexShader, "projection");
+	uLoc_modelView    = shaderInstanceGetUniformLocation(program.vertexShader, "modelView");
 
 	// Configure attributes for use with the vertex shader
-		C3D_AttrInfo* attrInfo = C3D_GetAttrInfo();
-		AttrInfo_Init(attrInfo);
+	C3D_AttrInfo* attrInfo = C3D_GetAttrInfo();
+	AttrInfo_Init(attrInfo);
 	AttrInfo_AddLoader(attrInfo, 0, GPU_FLOAT, 3); // v0=position
-	AttrInfo_AddLoader(attrInfo, 1, GPU_FLOAT, 2); // v1=texcoord
-	AttrInfo_AddLoader(attrInfo, 2, GPU_FLOAT, 3); // v2=normal
+	AttrInfo_AddLoader(attrInfo, 1, GPU_FLOAT, 3); // v1=normal
 
-	// Compute the projection matrix
-	Mtx_PerspTilt(&projection, C3D_AngleFromDegrees(80.0f), C3D_AspectRatioTop, 0.01f, 1000.0f, false);
-
-	/*// Create the VBO (vertex buffer object)
-	vbo_data = linearAlloc(sizeof(vertex_list));
-	memcpy(vbo_data, vertex_list, sizeof(vertex_list));
+	// Create the VBO (vertex buffer object)
+	vbo_data = linearAlloc(sizeof(vertex_array));
+	memcpy(vbo_data, vertex_array, sizeof(vertex_array));
+#ifdef vertex_element_count
+	ibo_data = linearAlloc(sizeof(vertex_elements));
+	memcpy(ibo_data, vertex_elements, sizeof(vertex_elements));
+#endif
 
 	// Configure buffers
 	C3D_BufInfo* bufInfo = C3D_GetBufInfo();
 	BufInfo_Init(bufInfo);
-	BufInfo_Add(bufInfo, vbo_data, sizeof(vertex), 3, 0x210);
+	BufInfo_Add(bufInfo, vbo_data, sizeof(float[6]), 2, 0x10);
 
-	// Load the texture and bind it to the first texture unit
-	if (!loadTextureFromMem(&kitten_tex, NULL, kitten_t3x, kitten_t3x_size))
-		svcBreak(USERBREAK_PANIC);
-	C3D_TexSetFilter(&kitten_tex, GPU_LINEAR, GPU_NEAREST);
-	C3D_TexBind(0, &kitten_tex);
-
-	// Configure the first fragment shading substage to blend the texture color with
-	// the vertex color (calculated by the vertex shader using a lighting algorithm)
+	// Configure the first fragment shading substage to blend the fragment primary color
+	// with the fragment secondary color.
 	// See https://www.opengl.org/sdk/docs/man2/xhtml/glTexEnv.xml for more insight
 	C3D_TexEnv* env = C3D_GetTexEnv(0);
 	C3D_TexEnvInit(env);
-	C3D_TexEnvSrc(env, C3D_Both, GPU_TEXTURE0, GPU_PRIMARY_COLOR, 0);
-	C3D_TexEnvFunc(env, C3D_Both, GPU_MODULATE);*/
+	C3D_TexEnvSrc(env, C3D_RGB, GPU_FRAGMENT_PRIMARY_COLOR, GPU_FRAGMENT_SECONDARY_COLOR, GPU_CONSTANT);
+	C3D_TexEnvSrc(env, C3D_Alpha, GPU_PRIMARY_COLOR, GPU_CONSTANT, GPU_CONSTANT);
+	C3D_TexEnvFunc(env, C3D_RGB, GPU_ADD);
+	C3D_TexEnvFunc(env, C3D_Alpha, GPU_REPLACE);
+
+	static const C3D_Material material =
+	{
+		{ 0.2f, 0.2f, 0.2f }, //ambient
+		{ 0.0f, 0.0f, 0.0f }, //diffuse
+		{ 0.4f, 0.4f, 0.4f }, //specular0
+		{ 0.4f, 0.4f, 0.4f }, //specular1
+		{ 0.0f, 0.0f, 0.0f }, //emission
+	};
+
+	C3D_LightEnvInit(&lightEnv);
+	C3D_LightEnvBind(&lightEnv);
+	C3D_LightEnvMaterial(&lightEnv, &material);
+
+	LightLut_FromFunc(&lut_Toon, toon_diffuse, 0.0f, false);
+	LightLut_FromFunc(&lut_Spec, toon_specular, 30.0f, false);
+	C3D_LightEnvLut(&lightEnv, GPU_LUT_D0, GPU_LUTINPUT_NH, false, &lut_Spec);
+	C3D_LightEnvLut(&lightEnv, GPU_LUT_D1, GPU_LUTINPUT_LN, false, &lut_Toon);
+
+	C3D_LightInit(&light, &lightEnv);
 }
 
-static bool Render()
+static void sceneRender(float iod)
 {
-	
+	// Compute the projection matrix
+	Mtx_PerspStereoTilt(&projection, C3D_AngleFromDegrees(40.0f), C3D_AspectRatioTop, 0.01f, 1000.0f, iod, 3.0f, false);
 
-	
-	return false;
+	C3D_FVec objPos   = FVec4_New(0.0f, 0.0f, -3.0f, 1.0f);
+	C3D_FVec lightPos = FVec4_New(0.0f, 0.0f, -0.5f, 1.0f);
+
+	// Calculate the modelView matrix
+	C3D_Mtx modelView;
+	Mtx_Identity(&modelView);
+	Mtx_Translate(&modelView, objPos.x, objPos.y, objPos.z, true);
+	Mtx_RotateX(&modelView, C3D_Angle(sinf(angleX)/4), true);
+	Mtx_RotateY(&modelView, C3D_Angle(angleY), true);
+	Mtx_Translate(&modelView, 0.0f, -0.5f, 0.f, true);
+
+	C3D_LightPosition(&light, &lightPos);
+
+	// Update the uniforms
+	C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, uLoc_projection, &projection);
+	C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, uLoc_modelView,  &modelView);
+
+	// Draw the VBO
+#ifdef vertex_element_count
+	C3D_DrawElements(GPU_TRIANGLES, vertex_element_count, C3D_UNSIGNED_SHORT, ibo_data);
+#else
+	C3D_DrawArrays(GPU_TRIANGLES, 0, vertex_element_count);
+#endif
+}
+
+static void sceneExit(void)
+{
+	// Free the VBO
+	linearFree(vbo_data);
+#ifdef vertex_element_count
+	linearFree(ibo_data);
+#endif
+
+	// Free the shader program
+	shaderProgramFree(&program);
+	DVLB_Free(vshader_dvlb);
 }
 
 

@@ -6,8 +6,8 @@ namespace UI{
 	class VideoElement : UIElement {
 	public:
 
-		VideoElement();
-		~VideoElement();
+		VideoElement(){}
+		~VideoElement(){}
 		
 	};
 };

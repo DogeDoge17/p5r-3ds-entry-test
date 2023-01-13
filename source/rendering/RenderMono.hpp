@@ -38,19 +38,19 @@ public:
 		BufInfo_Add(bufInfo, vbo_data, sizeof(vertices), 3, 0x210);
 	}
 
-	void Render()
+	void render()
 	{
 		//Debug::WriteLine("hhb");
 		std::cout << "drawing" << sizeof(vertices) << "\n";
 		C3D_DrawArrays(GPU_TRIANGLES, 0, sizeof(vertices)/sizeof(vertices[0]));
 	} 
 
-	void RenderTop()
+	void renderTop()
 	{
 		
 	}
 
-	void RenderBottom()
+	void renderBottom()
 	{
 		
 	}
