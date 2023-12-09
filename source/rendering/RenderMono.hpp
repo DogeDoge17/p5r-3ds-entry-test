@@ -28,31 +28,55 @@ public:
 			{ {-0.5f, -0.5f, +0.5f}, {0.0f, 0.0f}, {0.0f, 0.0f, +1.0f} },
 		};
 
-		// Create the VBO (vertex buffer object)
+
+	}
+
+	void applyChanges()
+	{
 		vbo_data = linearAlloc(sizeof(vertices));
 		memcpy(vbo_data, vertices.data(), sizeof(vertices));
 
-		// Configure buffers
 		C3D_BufInfo* bufInfo = C3D_GetBufInfo();
 		BufInfo_Init(bufInfo);
-		BufInfo_Add(bufInfo, vbo_data, sizeof(vertices), 3, 0x210);
+		BufInfo_Add(bufInfo, vbo_data, sizeof(float[6]), 2, 0x10);
 	}
 
-	void Render()
+	void render()
 	{
-		//Debug::WriteLine("hhb");
-		std::cout << "drawing" << sizeof(vertices) << "\n";
-		C3D_DrawArrays(GPU_TRIANGLES, 0, sizeof(vertices)/sizeof(vertices[0]));
+			// Compute the projection matrix
+			Mtx_PerspStereoTilt(&RenderSystem::projection, C3D_AngleFromDegrees(40.0f), C3D_AspectRatioTop, 0.01f, 1000.0f, RenderSystem::iod, 3.0f, false);
+
+			C3D_FVec objPos   = FVec4_New(0.0f, 0.0f, -3.0f, 1.0f);
+			C3D_FVec lightPos = FVec4_New(0.0f, 0.0f, -0.5f, 1.0f);
+
+			Quaternion rotation = gameObject->transform->rotation;
+
+			// Calculate the modelView matrix
+			C3D_Mtx modelView;
+			Mtx_Identity(&modelView);
+			Mtx_Translate(&modelView, objPos.x, objPos.y, objPos.z, true);
+			Mtx_RotateX(&modelView, C3D_Angle(sinf(rotation.x)/4), true);
+			Mtx_RotateY(&modelView, C3D_Angle(rotation.y), true);
+			Mtx_Translate(&modelView, 0.0f, -0.5f, 0.f, true);
+
+			C3D_LightPosition(&RenderSystem::light, &lightPos);
+
+			// Update the uniforms
+			C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, RenderSystem::uLoc_projection, &RenderSystem::projection);
+			C3D_FVUnifMtx4x4(GPU_VERTEX_SHADER, RenderSystem::uLoc_modelView,  &modelView);
+
+			// Draw the VBO
+			C3D_DrawElements(GPU_TRIANGLES, vertex_element_count, C3D_UNSIGNED_SHORT, RenderSystem::ibo_data);
 	} 
 
-	void RenderTop()
+	void renderTop()
 	{
-		
+
 	}
 
-	void RenderBottom()
+	void renderBottom()
 	{
-		
+
 	}
 };
 

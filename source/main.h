@@ -18,17 +18,17 @@
 #include <type_traits>
 #include <vector>
 #include "vshader_shbin.h"
-#include "video.hpp"
 #include <bits/stdc++.h>
 #include "Time.hpp"
 #include "utils.hpp"
 
 #include "game_stuff/GameStuff.hpp"
 
-#include "ui/UIElement.hpp"
-#include "ui/UIManager.hpp"
-#include "ui/VideoElement.hpp"
+#include "ui/uiElement.hpp"
+#include "ui/uiManager.hpp"
+#include "ui/videoElement.hpp"
 
-#include "rendering/RenderMono.hpp"
-#include "rendering/RenderingSystem.hpp"
+//#include "rendering/RenderMono.hpp"
+//#include "rendering/RenderingSystem.hpp"
 
+//#include "kitten_t3x.h"

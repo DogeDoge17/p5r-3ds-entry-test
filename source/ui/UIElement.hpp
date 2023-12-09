@@ -6,7 +6,7 @@ namespace UI{
 	class UIElement: public GameObject {
 	public:
 
-		UIElement();
-		~UIElement();
+		UIElement(){}
+		~UIElement(){}
 	};
 }

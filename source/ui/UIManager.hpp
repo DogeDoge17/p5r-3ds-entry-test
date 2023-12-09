@@ -5,8 +5,8 @@ namespace UI{
 	class UIManager {
 	public:
 
-		UIManager();
-		~UIManager();
+		UIManager(){}
+		~UIManager(){}
 
 	};
 };

@@ -13,7 +13,7 @@ namespace Debug
 	int	w = 29;
 	int	h = 28;
 
-	bool visible;
+	bool visible = true;
 
 	std::string *input;
 
@@ -32,7 +32,7 @@ namespace Debug
 	{
 		consoleSelect(&debugConsole);
 		printf("\x1b[2J");
-		consoleSelect(&topConsole);
+		consoleSelect(&bottomConsole);
 	}
 
 	/*void WriteLine() {
@@ -70,7 +70,7 @@ namespace Debug
 			Show();
 	}
 
-	int WriteLine(const char *format, ...)
+	int writeLine(const char *format, ...)
 	{
 		consoleSelect(&debugConsole);
 		va_list args;
@@ -78,12 +78,12 @@ namespace Debug
 		vprintf(format, args);
 		va_end(args);
 		std::cout << "\n";
-		consoleSelect(&topConsole);
+		consoleSelect(&bottomConsole);
 
 		return 0;
 	}
 
-	int Error(const char *format, ...)
+	int error(const char *format, ...)
 	{
 		consoleSelect(&debugConsole);
 		va_list args;
@@ -92,12 +92,12 @@ namespace Debug
 		vprintf(format, args);
 		va_end(args);
 		fprintf( stderr, "\x1b[0m\n" );
-		consoleSelect(&topConsole);
+		consoleSelect(&bottomConsole);
 
 		return 0;
 	}
 
-	int Warn(const char *format, ...)
+	int warn(const char *format, ...)
 	{
 		consoleSelect(&debugConsole);
 		va_list args;
@@ -106,7 +106,7 @@ namespace Debug
 		vprintf(format, args);
 		va_end(args);
 		fprintf(stderr, "\x1b[0m\n" );
-		consoleSelect(&topConsole);
+		consoleSelect(&bottomConsole);
 
 		return 0;
 	}

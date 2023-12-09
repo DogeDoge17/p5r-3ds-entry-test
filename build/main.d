@@ -82,20 +82,20 @@ main.o: C:/Users/noahj/source/other/p5r-entry-test/source/main.cpp \
  C:/devkitPro/libctru/include/3ds/font.h \
  C:/devkitPro/libctru/include/3ds/gdbhio_dev.h \
  C:/devkitPro/libctru/include/3ds/3dslink.h \
- C:/Users/noahj/source/other/p5r-entry-test/source/system/Debug.hpp \
+ C:/Users/noahj/source/other/p5r-entry-test/source/system/debug.hpp \
  C:/Users/noahj/source/other/p5r-entry-test/source/input.hpp \
  C:/Users/noahj/source/other/p5r-entry-test/source/utils.hpp \
- C:/Users/noahj/source/other/p5r-entry-test/source/Time.hpp \
  C:/Users/noahj/source/other/p5r-entry-test/source/main.h \
  C:/Users/noahj/source/other/p5r-entry-test/source/math.hpp \
  C:/Users/noahj/source/other/p5r-entry-test/build/vshader_shbin.h \
- C:/Users/noahj/source/other/p5r-entry-test/source/video.hpp \
+ C:/Users/noahj/source/other/p5r-entry-test/source/Time.hpp \
  C:/Users/noahj/source/other/p5r-entry-test/source/game_stuff/GameStuff.hpp \
- C:/Users/noahj/source/other/p5r-entry-test/source/ui/UIElement.hpp \
- C:/Users/noahj/source/other/p5r-entry-test/source/ui/UIManager.hpp \
- C:/Users/noahj/source/other/p5r-entry-test/source/ui/VideoElement.hpp \
- C:/Users/noahj/source/other/p5r-entry-test/source/rendering/RenderMono.hpp \
- C:/Users/noahj/source/other/p5r-entry-test/source/rendering/RenderingSystem.hpp \
+ C:/Users/noahj/source/other/p5r-entry-test/source/ui/uiElement.hpp \
+ C:/Users/noahj/source/other/p5r-entry-test/source/ui/uiManager.hpp \
+ C:/Users/noahj/source/other/p5r-entry-test/source/ui/videoElement.hpp \
+ C:/Users/noahj/source/other/p5r-entry-test/source/loading/scene.hpp \
+ C:/Users/noahj/source/other/p5r-entry-test/source/loading/sceneManage.hpp \
+ c:\users\noahj\source\other\p5r-entry-test\source\rendering\renderingsystem.hpp \
  C:/devkitPro/libctru/include/citro3d.h \
  C:/devkitPro/libctru/include/c3d/types.h \
  C:/devkitPro/libctru/include/c3d/maths.h \
@@ -113,7 +113,8 @@ main.o: C:/Users/noahj/source/other/p5r-entry-test/source/main.cpp \
  C:/devkitPro/libctru/include/c3d/fog.h \
  C:/devkitPro/libctru/include/c3d/framebuffer.h \
  C:/devkitPro/libctru/include/c3d/renderqueue.h \
- C:/devkitPro/libctru/include/tex3ds.h
+ c:\users\noahj\source\other\p5r-entry-test\source\scripts\scenes\scenes.hpp \
+ c:\users\noahj\source\other\p5r-entry-test\source\scripts\scenes\openingScene.hpp
 C:/devkitPro/libctru/include/3ds.h:
 C:/devkitPro/libctru/include/3ds/types.h:
 C:/devkitPro/libctru/include/3ds/result.h:
@@ -197,20 +198,20 @@ C:/devkitPro/libctru/include/3ds/romfs.h:
 C:/devkitPro/libctru/include/3ds/font.h:
 C:/devkitPro/libctru/include/3ds/gdbhio_dev.h:
 C:/devkitPro/libctru/include/3ds/3dslink.h:
-C:/Users/noahj/source/other/p5r-entry-test/source/system/Debug.hpp:
+C:/Users/noahj/source/other/p5r-entry-test/source/system/debug.hpp:
 C:/Users/noahj/source/other/p5r-entry-test/source/input.hpp:
 C:/Users/noahj/source/other/p5r-entry-test/source/utils.hpp:
-C:/Users/noahj/source/other/p5r-entry-test/source/Time.hpp:
 C:/Users/noahj/source/other/p5r-entry-test/source/main.h:
 C:/Users/noahj/source/other/p5r-entry-test/source/math.hpp:
 C:/Users/noahj/source/other/p5r-entry-test/build/vshader_shbin.h:
-C:/Users/noahj/source/other/p5r-entry-test/source/video.hpp:
+C:/Users/noahj/source/other/p5r-entry-test/source/Time.hpp:
 C:/Users/noahj/source/other/p5r-entry-test/source/game_stuff/GameStuff.hpp:
-C:/Users/noahj/source/other/p5r-entry-test/source/ui/UIElement.hpp:
-C:/Users/noahj/source/other/p5r-entry-test/source/ui/UIManager.hpp:
-C:/Users/noahj/source/other/p5r-entry-test/source/ui/VideoElement.hpp:
-C:/Users/noahj/source/other/p5r-entry-test/source/rendering/RenderMono.hpp:
-C:/Users/noahj/source/other/p5r-entry-test/source/rendering/RenderingSystem.hpp:
+C:/Users/noahj/source/other/p5r-entry-test/source/ui/uiElement.hpp:
+C:/Users/noahj/source/other/p5r-entry-test/source/ui/uiManager.hpp:
+C:/Users/noahj/source/other/p5r-entry-test/source/ui/videoElement.hpp:
+C:/Users/noahj/source/other/p5r-entry-test/source/loading/scene.hpp:
+C:/Users/noahj/source/other/p5r-entry-test/source/loading/sceneManage.hpp:
+c:\users\noahj\source\other\p5r-entry-test\source\rendering\renderingsystem.hpp:
 C:/devkitPro/libctru/include/citro3d.h:
 C:/devkitPro/libctru/include/c3d/types.h:
 C:/devkitPro/libctru/include/c3d/maths.h:
@@ -228,4 +229,5 @@ C:/devkitPro/libctru/include/c3d/lightlut.h:
 C:/devkitPro/libctru/include/c3d/fog.h:
 C:/devkitPro/libctru/include/c3d/framebuffer.h:
 C:/devkitPro/libctru/include/c3d/renderqueue.h:
-C:/devkitPro/libctru/include/tex3ds.h:
+c:\users\noahj\source\other\p5r-entry-test\source\scripts\scenes\scenes.hpp:
+c:\users\noahj\source\other\p5r-entry-test\source\scripts\scenes\openingScene.hpp:
